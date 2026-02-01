@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine?</title>
+  <style>
+    :root {
+      --bg1: #ffe6f0;
+      --bg2: #fff3f8;
+      --text: #2b1b22;
+      --btnYes: #ff3b7a;
+      --btnYesHover: #ff2b6f;
+      --btnNo: #2b1b22;
+      --card: rgba(255,255,255,0.75);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      overflow: hidden;
+    }
+
+    .card {
+      width: min(720px, 92vw);
+      padding: 28px 22px;
+      border-radius: 22px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+      border: 1px solid rgba(0,0,0,0.05);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 0 0 24px;
+      opacity: 0.8;
+      font-size: 15px;
+    }
+
+    .btnRow {
+      position: relative;
+      height: 84px;
+      display: grid;
+      place-items: center;
+    }
+
+    button {
+      border: none;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+      user-select: none;
+    }
+
+    #yesBtn {
+      background: var(--btnYes);
+      color: white;
+      box-shadow: 0 10px 22px rgba(255,59,122,0.35);
+      margin-right: 12px;
+    }
+    #yesBtn:hover { background: var(--btnYesHover); transform: translateY(-1px); }
+    #yesBtn:active { transform: translateY(1px) scale(0.99); }
+
+    #noBtn {
+      background: var(--btnNo);
+      color: white;
+      position: absolute;
+      left: 60%;
+      top: 18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+    }
+
+    .result {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .gifs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .gifs img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+
+    @media (max-width: 620px) {
+      .gifs { grid-template-columns: 1fr; }
+      .gifs img { height: 220px; }
+      #noBtn { left: 55%; }
+    }
+
+    .tiny {
+      margin-top: 12px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sneha, will you be my valentine?</h1>
+    <p class="sub">Choose wisely 😄</p>
+
+    <div class="btnRow" id="btnRow">
+      <button id="yesBtn" aria-label="Yes">Yes 💘</button>
+      <button id="noBtn" aria-label="No">No 🙃</button>
+    </div>
+
+    <div class="result" id="result">
+      <h2 style="margin: 18px 0 6px;">Yay!! 💖</h2>
+      <p style="margin: 0; opacity: 0.85;">Thank you for saying yes!</p>
+
+      <div class="gifs">
+        <!-- You can swap these GIF URLs for any you like -->
+        <img id="gif1" alt="Thank you gif"
+             src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
+        <img id="gif2" alt="Cute valentine gif"
+             src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif">
+      </div>
+
+      <div class="tiny" id="emailStatus"></div>
+    </div>
+  </div>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <script>
+    // ============
+    // CONFIG: replace these 3 with your EmailJS values
+    // ============
+    const EMAILJS_PUBLIC_KEY = "m8B9vmRJg-fvP--fN";
+    const EMAILJS_SERVICE_ID = "service_hxmp4bg";
+    const EMAILJS_TEMPLATE_ID = "template_bg4hqvh";
+
+    // Where the email should go
+    const TO_EMAIL = "vishalbasutkar1@gmail.com";
+    const TO_NAME = "Vishal";
+
+    // ============
+    // No button dodging logic
+    // ============
+    const noBtn = document.getElementById("noBtn");
+    const btnRow = document.getElementById("btnRow");
+
+    function moveNoButton() {
+      const rowRect = btnRow.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const padding = 8;
+      const maxX = rowRect.width - btnRect.width - padding;
+      const maxY = rowRect.height - btnRect.height - padding;
+
+      const x = Math.max(padding, Math.floor(Math.random() * maxX));
+      const y = Math.max(padding, Math.floor(Math.random() * maxY));
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+
+    // Move on hover, and also on focus (keyboard) so it stays “unclickable”
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("focus", () => {
+      noBtn.blur();
+      moveNoButton();
+      document.getElementById("yesBtn").focus();
+    });
+
+    // ============
+    // Yes click: show GIFs + send email
+    // ============
+    const yesBtn = document.getElementById("yesBtn");
+    const result = document.getElementById("result");
+    const emailStatus = document.getElementById("emailStatus");
+
+    function nowString() {
+      return new Date().toLocaleString(undefined, {
+        year: "numeric", month: "short", day: "2-digit",
+        hour: "2-digit", minute: "2-digit"
+      });
+    }
+
+    async function sendAcceptanceEmail() {
+      // If user hasn’t configured EmailJS, don’t error loudly
+      if (
+        EMAILJS_PUBLIC_KEY.startsWith("YOUR_") ||
+        EMAILJS_SERVICE_ID.startsWith("YOUR_") ||
+        EMAILJS_TEMPLATE_ID.startsWith("YOUR_")
+      ) {
+        emailStatus.textContent = "Email notification is not configured yet (add your EmailJS keys).";
+        return;
+      }
+
+      try {
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+        const params = {
+          to_email: TO_EMAIL,
+          to_name: TO_NAME,
+          message: "She accepted hehe 💖",
+          accepted_at: nowString()
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+        emailStatus.textContent = "Email sent to Vishal ✅";
+      } catch (err) {
+        console.error(err);
+        emailStatus.textContent = "Email failed to send (check EmailJS setup).";
+      }
+    }
+
+    yesBtn.addEventListener("click", async () => {
+      // Lock UI a bit
+      yesBtn.disabled = true;
+      yesBtn.style.opacity = "0.85";
+
+      result.style.display = "block";
+      await sendAcceptanceEmail();
+    });
+
+    // Set initial No button location randomly
+    moveNoButton();
+  </script>
+</body>
+</html>
